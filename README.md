@@ -31,8 +31,8 @@ this appears to be the first public Linux implementation.
 ## Install
 
 ```bash
-git clone https://github.com/<you>/superstrike-hits-linux
-cd superstrike-hits-linux
+git clone https://github.com/kazehana99k/Logitech-PRO-X2-SUPERSTRIKE-Linux-haptics-actuation-control-.git
+cd Logitech-PRO-X2-SUPERSTRIKE-Linux-haptics-actuation-control-
 chmod +x superstrike-hits.py
 
 # non-root access (recommended): install the udev rule
