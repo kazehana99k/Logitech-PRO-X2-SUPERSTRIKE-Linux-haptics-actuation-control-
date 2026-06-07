@@ -11,8 +11,7 @@ the onboard profile last had.
 
 This project reverse-engineers the relevant HID++ feature (**`0x1B0C`**, not present in
 libratbag/Solaar) and gives you a small, dependency-free CLI to read and set those values.
-As of writing, neither **Solaar** nor **libratbag** supports this device's HITS settings —
-this appears to be the first public Linux implementation.
+As of writing, neither **Solaar** nor **libratbag** supports this device's HITS settings.
 
 ## Features
 
