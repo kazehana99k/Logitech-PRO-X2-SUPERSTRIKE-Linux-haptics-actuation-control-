@@ -1,10 +1,10 @@
-# Logitech G PRO X2 SUPERSTRIKE / LIGHTSPEED 接收器 —— 允许普通用户访问 hidraw
-# 安装:
+# Logitech G PRO X2 SUPERSTRIKE / LIGHTSPEED receiver — allow non-root access to hidraw
+# Install:
 #   sudo cp 42-logitech-superstrike.rules /etc/udev/rules.d/
 #   sudo udevadm control --reload && sudo udevadm trigger
-#   （然后重新插拔一次接收器,或重启)
+#   (then re-plug the receiver once, or reboot)
 #
-# LIGHTSPEED 接收器(无线)
+# LIGHTSPEED receiver (wireless)
 KERNEL=="hidraw*", ATTRS{idVendor}=="046d", ATTRS{idProduct}=="c54d", MODE="0660", TAG+="uaccess"
-# 兜底:任意 Logitech 设备的 hidraw(有线模式 PID 可能不同时也能覆盖)
+# Fallback: any Logitech hidraw (covers wired mode, where the product ID may differ)
 KERNEL=="hidraw*", ATTRS{idVendor}=="046d", MODE="0660", TAG+="uaccess"

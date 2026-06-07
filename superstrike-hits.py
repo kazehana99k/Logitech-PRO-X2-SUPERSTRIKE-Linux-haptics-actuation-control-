@@ -3,11 +3,11 @@
 """superstrike-hits (hardened) — Logitech G PRO X2 SUPERSTRIKE click-haptics &
 actuation control on Linux, no G HUB.
 
-Based on kazehana's reverse-engineered protocol (feature 0x1B0C).
-Hardened vs original:
-  * auto-locates the receiver's HID++ control interface (FF00 usage page),
+Based on the reverse-engineered protocol (HID++ feature 0x1B0C); see PROTOCOL.md.
+Hardened vs the original:
+  * auto-locates the receiver's HID++ control interface (FF00 usage page) and
     skips other hidraw nodes that reject writes (no more BrokenPipe crash);
-    --device no longer needed.
+    --device is no longer needed.
   * config persistence: --save / --apply  (+ ~/.config/superstrike-hits.conf)
     so a udev/systemd hook can re-apply settings on every connect.
 """
@@ -107,7 +107,7 @@ def find_device(explicit=None):
     else:
         # HID++ interface first: VID 046d AND FF00 usage page
         all_hr = sorted(glob.glob("/dev/hidraw*"))
-        pref = [p for p in all_hr if (sysfs_hid_id(os.path.basename(p)) or (0,0,0))[1] == VID
+        pref = [p for p in all_hr if (sysfs_hid_id(os.path.basename(p)) or (0, 0, 0))[1] == VID
                 and has_ff00(os.path.basename(p))]
         rest = [p for p in all_hr if p not in pref]
         cands = pref + rest
@@ -130,7 +130,8 @@ def find_device(explicit=None):
             if fidx:
                 return dev, dev_idx, fidx
         dev.close()
-    raise SystemExit("ERROR: 没找到 SUPERSTRIKE 的 HID++(0x1B0C)设备。鼠标开机连上了吗?有 root/udev 权限吗?")
+    raise SystemExit("ERROR: no SUPERSTRIKE HID++ (0x1B0C) device found. "
+                     "Is the mouse powered on and connected? Do you have root / the udev rule installed?")
 
 def read_btn(dev, dev_idx, fidx, btn):
     rec = dev.request(dev_idx, fidx, 2, bytes([btn]), want_byte0=btn)
@@ -144,27 +145,28 @@ def set_button(dev, dev_idx, fidx, btn, act_raw=None, hap_raw=None):
     return res[:4]
 
 def cmd_get(dev, dev_idx, fidx):
-    for btn, label in ((0, "左键"), (1, "右键")):
+    for btn, label in ((0, "left "), (1, "right")):
         b = read_btn(dev, dev_idx, fidx, btn)
-        print(f"  {label}: 行程 {act_raw_to_level(b[1])}档(0x{b[1]:02x})  震感 {hap_raw_to_level(b[3])}档(0x{b[3]:02x})  [x=0x{b[2]:02x}]")
+        print(f"  {label}: actuation L{act_raw_to_level(b[1])} (0x{b[1]:02x})  "
+              f"click-haptics L{hap_raw_to_level(b[3])} (0x{b[3]:02x})  [x=0x{b[2]:02x}]")
 
 def main():
-    ap = argparse.ArgumentParser(description="G PRO X2 SUPERSTRIKE 震感/触发行程 (Linux)")
-    ap.add_argument("--get", action="store_true")
-    ap.add_argument("--haptics", type=int, metavar="1-6")
-    ap.add_argument("--actuation", type=int, metavar="1-10")
-    ap.add_argument("--left", action="store_true")
-    ap.add_argument("--right", action="store_true")
-    ap.add_argument("--device")
-    ap.add_argument("--save", action="store_true", help="把当前(或本次设定的)配置写入 ~/.config/superstrike-hits.conf")
-    ap.add_argument("--apply", action="store_true", help="读取配置文件并应用(给开机/连接钩子用)")
+    ap = argparse.ArgumentParser(description="G PRO X2 SUPERSTRIKE click-haptics / actuation control (Linux)")
+    ap.add_argument("--get", action="store_true", help="read current per-button config")
+    ap.add_argument("--haptics", type=int, metavar="1-6", help="set click-haptics level")
+    ap.add_argument("--actuation", type=int, metavar="1-10", help="set actuation-point level")
+    ap.add_argument("--left", action="store_true", help="apply to the left main button only")
+    ap.add_argument("--right", action="store_true", help="apply to the right main button only")
+    ap.add_argument("--device", help="explicit /dev/hidrawN (normally auto-detected)")
+    ap.add_argument("--save", action="store_true", help="also remember the resulting config in ~/.config/superstrike-hits.conf")
+    ap.add_argument("--apply", action="store_true", help="read the saved config and apply it (for a boot/connect hook)")
     args = ap.parse_args()
 
     dev, dev_idx, fidx = find_device(args.device)
     try:
         if args.apply:
             if not os.path.exists(CONF):
-                print("没有配置文件,跳过"); return
+                print("no config file, skipping"); return
             cfg = json.load(open(CONF))
             for btn in (0, 1):
                 key = ("left", "right")[btn]
@@ -172,30 +174,31 @@ def main():
                 set_button(dev, dev_idx, fidx, btn,
                            act_raw=act_level_to_raw(c["actuation"]) if "actuation" in c else None,
                            hap_raw=hap_level_to_raw(c["haptics"]) if "haptics" in c else None)
-            print("已应用配置:", cfg); return
+            print("applied config:", cfg); return
 
         act_raw = act_level_to_raw(args.actuation) if args.actuation else None
         hap_raw = hap_level_to_raw(args.haptics) if args.haptics else None
         if args.actuation and not ACT_MIN <= args.actuation <= ACT_MAX:
-            raise SystemExit("actuation 必须 1..10")
+            raise SystemExit("actuation must be 1..10")
         if args.haptics and not HAP_MIN <= args.haptics <= HAP_MAX:
-            raise SystemExit("haptics 必须 1..6")
+            raise SystemExit("haptics must be 1..6")
 
         if act_raw is None and hap_raw is None and not args.save:
             cmd_get(dev, dev_idx, fidx); return
 
-        buttons = [0,1] if not (args.left or args.right) else ([0] if args.left else []) + ([1] if args.right else [])
+        buttons = [0, 1] if not (args.left or args.right) else ([0] if args.left else []) + ([1] if args.right else [])
         for btn in buttons:
             out = set_button(dev, dev_idx, fidx, btn, act_raw, hap_raw)
-            print(f"  设 {('左键','右键')[btn]}: 行程 {act_raw_to_level(out[1])}档  震感 {hap_raw_to_level(out[3])}档  OK")
+            print(f"  set {('left ', 'right')[btn]}: actuation L{act_raw_to_level(out[1])}  "
+                  f"click-haptics L{hap_raw_to_level(out[3])}  OK")
 
         if args.save:
             cfg = {}
             for btn in (0, 1):
                 b = read_btn(dev, dev_idx, fidx, btn)
-                cfg[("left","right")[btn]] = {"actuation": act_raw_to_level(b[1]), "haptics": hap_raw_to_level(b[3])}
+                cfg[("left", "right")[btn]] = {"actuation": act_raw_to_level(b[1]), "haptics": hap_raw_to_level(b[3])}
             json.dump(cfg, open(CONF, "w"), indent=2)
-            print("已保存配置 ->", CONF, cfg)
+            print("saved config ->", CONF, cfg)
     finally:
         dev.close()
 

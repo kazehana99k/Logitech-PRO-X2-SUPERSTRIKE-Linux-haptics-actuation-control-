@@ -1,6 +1,7 @@
-G PRO X2 SUPERSTRIKE — HID++ feature 表(本机实测,共 35 个 feature)
-设备:046d:c54d 接收器,device index 1,HID++ 4.2
-获取方式:停 G HUB 后 hidapi 走 IFeatureSet 枚举(getCount=0x23,逐个 getFeatureID)
+G PRO X2 SUPERSTRIKE — HID++ feature table (read from the real device, 35 features total)
+Device: 046d:c54d receiver, device index 1, HID++ 4.2
+How obtained: with G HUB stopped, enumerated via hidapi using IFeatureSet
+              (getCount = 0x23, then getFeatureID for each)
 
   index 0x00 -> ID 0x0000   IRoot
   index 0x01 -> ID 0x0001   IFeatureSet
@@ -14,10 +15,10 @@ G PRO X2 SUPERSTRIKE — HID++ feature 表(本机实测,共 35 个 feature)
   index 0x09 -> ID 0x2202   extended adjustable DPI
   index 0x0a -> ID 0x8090
   index 0x0b -> ID 0x80e0
-  index 0x0c -> ID 0x1b0c   <<<<< analog / HITS(触发行程 + 点击力反馈)
-  index 0x0d -> ID 0x8061   extended report rate(<8K 轮询)
-  index 0x0e -> ID 0x8100   onboard profiles(板载配置)
-  index 0x0f -> ID 0x8110   mouse button spy / 通知
+  index 0x0c -> ID 0x1b0c   <<<<< analog / HITS (actuation point + click-haptics)
+  index 0x0d -> ID 0x8061   extended report rate (<8K polling)
+  index 0x0e -> ID 0x8100   onboard profiles
+  index 0x0f -> ID 0x8110   mouse button spy / notifications
   index 0x10 -> ID 0x1500
   index 0x11 -> ID 0x1801
   index 0x12 -> ID 0x1802
@@ -39,11 +40,11 @@ G PRO X2 SUPERSTRIKE — HID++ feature 表(本机实测,共 35 个 feature)
   index 0x22 -> ID 0x1eb0
   index 0x23 -> ID 0x18b1
 
-feature 0x1B0C getInfo (fn0) 返回:  00 03 28 14 14 01
-   -> 按键数=03  actuation上限=0x28(=40=档10×4)  haptics上限=0x14(=20=档6,(6-1)×4)  ?=0x14  flags=01
+feature 0x1B0C getInfo (fn0) returns:  00 03 28 14 14 01
+   -> nButtons=03  actuation_max=0x28 (=40 = level 10 x 4)  haptics_max=0x14 (=20 = level 6, (6-1)x4)  ?=0x14  flags=01
 
-每键记录 (fn1 设置 / fn2 读取):  [button][actuation][x][haptics]
-   button   : 00=左  01=右
-   actuation: 档1..10 = 字节 档×4      (0x04..0x28)
-   x        : 0x09 固定(疑似 rapid trigger),原样写回
-   haptics  : 档1..6  = 字节 (档-1)×4  (0x00..0x14)
+per-button record (fn1 set / fn2 get):  [button][actuation][x][haptics]
+   button   : 00=left  01=right
+   actuation: level 1..10 = byte level x 4      (0x04..0x28)
+   x        : 0x09 fixed (suspected rapid trigger), written back unchanged
+   haptics  : level 1..6  = byte (level-1) x 4  (0x00..0x14)

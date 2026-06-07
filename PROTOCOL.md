@@ -1,6 +1,6 @@
 # Logitech G PRO X2 SUPERSTRIKE — Linux control of HITS haptics / actuation
 
-> 中文原版见 [PROTOCOL.zh.md](PROTOCOL.zh.md).
+> Chinese version: [PROTOCOL.zh.md](PROTOCOL.zh.md).
 
 Reverse-engineering date: 2026-06-07. Method: captured G HUB's USB/HID++ traffic on
 Windows with USBPcap and diffed it, then actively queried the real device with hidapi and
@@ -161,10 +161,11 @@ Troubleshooting:
 5. **On-device closed loop**: fn2 read -> fn1 change haptics -> fn2 read back to confirm ->
    restore. Writing the out-of-range 0x18 is rejected by the device (confirming the 0x14 max).
 
-The Windows-side scripts are under `windows逆向脚本备查/` and the raw captures under
-`抓包原始数据/` (`hidpp_haptics.pcap` = differential capture, `hidpp_enum3.pcap` = enumeration
-capture). Open the pcaps in Wireshark; for HID++ requests look at the control-transfer data
-stage, and for responses look at endpoint 0x83's `usb.capdata`.
+The Windows-side reverse-engineering scripts and the raw captures
+(`hidpp_haptics.pcap` = differential capture, `hidpp_enum3.pcap` = enumeration capture) are
+kept locally and are not included in this repo (the pcaps contain device serial numbers).
+When working with such captures in Wireshark: for HID++ requests look at the control-transfer
+data stage, and for responses look at endpoint 0x83's `usb.capdata`.
 
 ---
 
