@@ -72,8 +72,8 @@ captured from G HUB) are in **[PROTOCOL.md](PROTOCOL.md)**.
 
 ## Credits
 
-Reverse-engineered by **kazehana** (USBPcap differential capture of G HUB + on-device
-HID++ probing). Contributions / upstreaming welcome.
+Reverse-engineered by [**kazehana99k**](https://github.com/kazehana99k) (USBPcap
+differential capture of G HUB + on-device HID++ probing). Contributions / upstreaming welcome.
 
 ## License
 
