@@ -75,6 +75,17 @@ captured from G HUB) are in **[PROTOCOL.md](PROTOCOL.md)**.
 Reverse-engineered by [**kazehana99k**](https://github.com/kazehana99k) (USBPcap
 differential capture of G HUB + on-device HID++ probing). Contributions / upstreaming welcome.
 
+## Disclaimer
+
+This is an independent, community project. It is **not affiliated with, authorized, or
+endorsed by Logitech**. "Logitech", "G PRO", "PRO X2 SUPERSTRIKE", "LIGHTSPEED" and any
+related names are trademarks of their respective owners and are used here only nominatively,
+to describe hardware compatibility. The protocol was reverse-engineered for interoperability
+with hardware the author owns; no Logitech software, firmware, or other copyrighted material
+is included or redistributed. The software is provided "as is", without warranty of any kind —
+use at your own risk, and you are responsible for complying with the laws and license terms
+applicable to you.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
