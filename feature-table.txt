@@ -1,0 +1,49 @@
+G PRO X2 SUPERSTRIKE — HID++ feature 表(本机实测,共 35 个 feature)
+设备:046d:c54d 接收器,device index 1,HID++ 4.2
+获取方式:停 G HUB 后 hidapi 走 IFeatureSet 枚举(getCount=0x23,逐个 getFeatureID)
+
+  index 0x00 -> ID 0x0000   IRoot
+  index 0x01 -> ID 0x0001   IFeatureSet
+  index 0x02 -> ID 0x0003   device info / fw
+  index 0x03 -> ID 0x0005   device name & type
+  index 0x04 -> ID 0x1d4b   wireless device status
+  index 0x05 -> ID 0x0020   config change
+  index 0x06 -> ID 0x1004   unified battery
+  index 0x07 -> ID 0x2250   analog mouse (?)
+  index 0x08 -> ID 0x2251
+  index 0x09 -> ID 0x2202   extended adjustable DPI
+  index 0x0a -> ID 0x8090
+  index 0x0b -> ID 0x80e0
+  index 0x0c -> ID 0x1b0c   <<<<< analog / HITS(触发行程 + 点击力反馈)
+  index 0x0d -> ID 0x8061   extended report rate(<8K 轮询)
+  index 0x0e -> ID 0x8100   onboard profiles(板载配置)
+  index 0x0f -> ID 0x8110   mouse button spy / 通知
+  index 0x10 -> ID 0x1500
+  index 0x11 -> ID 0x1801
+  index 0x12 -> ID 0x1802
+  index 0x13 -> ID 0x1803
+  index 0x14 -> ID 0x1806
+  index 0x15 -> ID 0x1817
+  index 0x16 -> ID 0x1805   OOB state
+  index 0x17 -> ID 0x1830   power modes
+  index 0x18 -> ID 0x1877
+  index 0x19 -> ID 0x9403
+  index 0x1a -> ID 0x1861
+  index 0x1b -> ID 0x1890
+  index 0x1c -> ID 0x18a1
+  index 0x1d -> ID 0x1e00   enable hidden features
+  index 0x1e -> ID 0x1e02
+  index 0x1f -> ID 0x1e22
+  index 0x20 -> ID 0x1e30
+  index 0x21 -> ID 0x1602
+  index 0x22 -> ID 0x1eb0
+  index 0x23 -> ID 0x18b1
+
+feature 0x1B0C getInfo (fn0) 返回:  00 03 28 14 14 01
+   -> 按键数=03  actuation上限=0x28(=40=档10×4)  haptics上限=0x14(=20=档6,(6-1)×4)  ?=0x14  flags=01
+
+每键记录 (fn1 设置 / fn2 读取):  [button][actuation][x][haptics]
+   button   : 00=左  01=右
+   actuation: 档1..10 = 字节 档×4      (0x04..0x28)
+   x        : 0x09 固定(疑似 rapid trigger),原样写回
+   haptics  : 档1..6  = 字节 (档-1)×4  (0x00..0x14)
